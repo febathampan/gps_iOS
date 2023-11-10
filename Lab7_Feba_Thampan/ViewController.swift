@@ -96,7 +96,11 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
         print("Average speed == \(avg)")
         let dist = distanceLabel.text!
         print("Distance Travelled = \(dist)")
-        print("Distance Travelled Before Exceeding Speed Limit == \(distanceBeforeExceedingSpeedLimit)")
+        if !hasCalculatedDistanceBeforeOverspeed {
+            print("Distance Travelled Before Exceeding Speed Limit == \(dist)")
+        }else{
+            print("Distance Travelled Before Exceeding Speed Limit == \(distanceBeforeExceedingSpeedLimit)")
+        }
     }
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
