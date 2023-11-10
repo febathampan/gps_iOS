@@ -36,6 +36,8 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
     var locations: [CLLocation] = []
     var distanceBeforeExceedingSpeedLimit = 0.0
     var hasCalculatedDistanceBeforeOverspeed = false
+    var userPath: [CLLocationCoordinate2D] = []
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +52,11 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
         map.showsUserLocation = true
+        
+        // Set the initial location to Conestoga College, Waterloo
+            /*   let initialLocation = CLLocationCoordinate2D(latitude: 43.4681, longitude: -80.5449)
+               let region = MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+               map.setRegion(region, animated: true)*/
     }
     
     func setToInitials(){
@@ -62,6 +69,8 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
         tripStatus.backgroundColor = UIColor.lightGray
         overSpeedingIndicator.backgroundColor = UIColor.clear
         locations.removeAll()
+        userPath.removeAll()
+        
         isTripInProgress = false
         currentSpeed = 0.0
         maxSpeed = 0.0
@@ -70,6 +79,10 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
         distanceBeforeExceedingSpeedLimit = 0.0
         hasCalculatedDistanceBeforeOverspeed = false
         overSpeedingIndicator.text = ""
+        // Set the initial location to Conestoga College, Waterloo
+               let initialLocation = CLLocationCoordinate2D(latitude: 43.4681, longitude: -80.5449)
+               let region = MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+               map.setRegion(region, animated: true)
     }
     
     @IBAction func startTrip(_ sender: Any) {
@@ -116,6 +129,9 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
             map.setRegion(region, animated: true)
             updateTripData(newLocation: location)
             updateUI()
+            // Add the new location to the userPath array for the polyline
+            userPath.append(location.coordinate)
+            updateMapWithUserPath()
             
         }
     }
@@ -140,7 +156,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
             if !hasCalculatedDistanceBeforeOverspeed{
                 distanceBeforeExceedingSpeedLimit = totalDistance/1000
                 hasCalculatedDistanceBeforeOverspeed = true
-                }
+            }
             overSpeedingIndicator.backgroundColor = UIColor.red
         } else {
             overSpeedingIndicator.backgroundColor = UIColor.clear
@@ -177,7 +193,33 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
         }
         
     }
+    func updateMapWithUserPath() {
+        // Remove any existing overlays
+        map.removeOverlays(map.overlays)
+        
+        // Create a polyline with the user's path
+        let polyline = MKPolyline(coordinates: userPath, count: userPath.count)
+        
+        // Add the polyline to the map
+        map.addOverlay(polyline)
+        
+        // Optional: Zoom to the user's path region
+        if !userPath.isEmpty {
+            let region = MKCoordinateRegion(center: userPath.last!, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+            map.setRegion(region, animated: true)
+        }
+    }
     
+    // MKMapViewDelegate method to render the overlay (polyline)
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        if overlay is MKPolyline {
+            let renderer = MKPolylineRenderer(overlay: overlay)
+            renderer.strokeColor = UIColor.blue
+            renderer.lineWidth = 3
+            return renderer
+        }
+        return MKOverlayRenderer()
+    }
     
 }
 
