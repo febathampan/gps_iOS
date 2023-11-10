@@ -140,10 +140,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, MKMapViewDeleg
             if !hasCalculatedDistanceBeforeOverspeed{
                 distanceBeforeExceedingSpeedLimit = totalDistance/1000
                 hasCalculatedDistanceBeforeOverspeed = true
-                overSpeedingIndicator.text = String(distanceBeforeExceedingSpeedLimit) + " km"
-                
-                // print("Distance Travelled Before Exceeding Speed Limit == \(distanceBeforeExceedingSpeedLimit)")
-            }
+                }
             overSpeedingIndicator.backgroundColor = UIColor.red
         } else {
             overSpeedingIndicator.backgroundColor = UIColor.clear
